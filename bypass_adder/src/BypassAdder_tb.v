@@ -110,12 +110,27 @@ module tb_BypassAdder;
         validate_test(32'hFFFFFFFF, 1'b0);
 
         // Additional Test Case 11: Alternating Bits with Carry-in
-        $display("Running Test Case 11...");
+        $display("Running Test Case 11: Random test case 3...");
         A = 32'hAAAAAAAA;
         B = 32'h55555555;
         Cin = 1;
         #10;
         validate_test(32'h00000000, 1'b1);
+        
+         $display("Running Test Case 12: Overflow of positive numbers...");
+        A = 32'h7FFFFFFF;
+        B = 32'h00000001;
+        Cin = 0;
+        #10;
+        validate_test(32'h80000000, 1'b0);
+
+        // Test Case 2: Overflow of negative numbers
+        $display("Running Test Case 13: Overflow of negative numbers...");
+        A = 32'h80000000;
+        B = 32'hFFFFFFFF;
+        Cin = 0;
+        #10;
+        validate_test(32'h7FFFFFFF, 1'b1);
 
 
         // End simulation
