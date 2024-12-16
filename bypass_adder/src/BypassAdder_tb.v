@@ -8,8 +8,11 @@ module tb_BypassAdder;
     wire [31:0] Sum;        // Output Sum
     wire Cout;              // Output Carry-out
 
+    integer success_count = 0;
+    integer failure_count = 0;
+
     // Instantiate the Bypass Adder (Carry-Skip Adder)
-    BypassAdder #(32, 4) uut (
+    BypassAdder_r #(32, 4) uut (
         .A(A),
         .B(B),
         .Cin(Cin),
@@ -18,120 +21,116 @@ module tb_BypassAdder;
     );
 
     // Procedure to validate the test case
-    task validate_test(input [31:0] expected_sum, input expected_cout);
+    task validate_test(input [31:0] expected_sum, input expected_cout, input integer test_case_num);
         begin
             #1; // Wait for signals to settle
             if (Sum == expected_sum && Cout == expected_cout) begin
-                $display("Test Passed: Sum = %h, Cout = %b", Sum, Cout);
+                $display("TestCase#%0d: success", test_case_num);
+                success_count = success_count + 1;
             end else begin
-                $display("Test Failed: Expected Sum = %h, Cout = %b, but got Sum = %h, Cout = %b", 
-                         expected_sum, expected_cout, Sum, Cout);
+                $display("TestCase#%0d: failed with input A = %h, B = %h, Cin = %b, Output Sum = %h, Cout = %b", 
+                         test_case_num, A, B, Cin, Sum, Cout);
+                failure_count = failure_count + 1;
             end
         end
     endtask
 
-    // Test Case 1
+    // Test cases
     initial begin
         $display("Running Test Case 1...");
         A = 32'h00000001;
         B = 32'h00000001;
         Cin = 0;
-        #10;  // Run the simulation for 10ns
-        validate_test(32'h00000002, 1'b0);
+        #10;
+        validate_test(32'h00000002, 1'b0, 1);
 
-        // Test Case 2
         $display("Running Test Case 2...");
         A = 32'hFFFFFFFF;
         B = 32'h00000001;
         Cin = 0;
         #10;
-        validate_test(32'h00000000, 1'b1);
+        validate_test(32'h00000000, 1'b1, 2);
 
-        // Test Case 3
         $display("Running Test Case 3...");
         A = 32'h12345678;
         B = 32'h87654321;
         Cin = 1;
         #10;
-        validate_test(32'h9999999a, 1'b0);
+        validate_test(32'h9999999a, 1'b0, 3);
 
-        // Test Case 4: Test with different carry-out behavior
         $display("Running Test Case 4...");
         A = 32'h11111111;
         B = 32'h22222222;
         Cin = 1;
         #10;
-        validate_test(32'h33333334, 1'b0);
+        validate_test(32'h33333334, 1'b0, 4);
 
-        // Test Case 5: Test for maximum values
         $display("Running Test Case 5...");
         A = 32'hFFFFFFFF;
         B = 32'hFFFFFFFF;
         Cin = 0;
         #10;
-        validate_test(32'hFFFFFFFE, 1'b1);
+        validate_test(32'hFFFFFFFE, 1'b1, 5);
 
-        // Test Case 6: Random Inputs
         $display("Running Test Case 6...");
         A = 32'hA5A5A5A5;
         B = 32'h5A5A5A5A;
         Cin = 0;
         #10;
-        validate_test(32'hFFFFFFFF, 1'b0);
-          $display("Running Test Case 7...");
+        validate_test(32'hFFFFFFFF, 1'b0, 6);
+
+        $display("Running Test Case 7...");
         A = 32'h00000000;
         B = 32'h00000000;
         Cin = 0;
         #10;
-        validate_test(32'h00000000, 1'b0);
+        validate_test(32'h00000000, 1'b0, 7);
 
-        // Additional Test Case 8: One Input Zero, One Input Max
         $display("Running Test Case 8...");
         A = 32'h00000000;
         B = 32'hFFFFFFFF;
         Cin = 0;
         #10;
-        validate_test(32'hFFFFFFFF, 1'b0);
+        validate_test(32'hFFFFFFFF, 1'b0, 8);
 
-        // Additional Test Case 9: One Input Zero, One Input Max with Carry-in
         $display("Running Test Case 9...");
         A = 32'h00000000;
         B = 32'hFFFFFFFF;
         Cin = 1;
         #10;
-        validate_test(32'h00000000, 1'b1);
+        validate_test(32'h00000000, 1'b1, 9);
 
-        // Additional Test Case 10: Alternating Bits
         $display("Running Test Case 10...");
         A = 32'hAAAAAAAA;
         B = 32'h55555555;
         Cin = 0;
         #10;
-        validate_test(32'hFFFFFFFF, 1'b0);
+        validate_test(32'hFFFFFFFF, 1'b0, 10);
 
-        // Additional Test Case 11: Alternating Bits with Carry-in
-        $display("Running Test Case 11: Random test case 3...");
+        $display("Running Test Case 11...");
         A = 32'hAAAAAAAA;
         B = 32'h55555555;
         Cin = 1;
         #10;
-        validate_test(32'h00000000, 1'b1);
-        
-         $display("Running Test Case 12: Overflow of positive numbers...");
+        validate_test(32'h00000000, 1'b1, 11);
+
+        $display("Running Test Case 12...");
         A = 32'h7FFFFFFF;
         B = 32'h00000001;
         Cin = 0;
         #10;
-        validate_test(32'h80000000, 1'b0);
+        validate_test(32'h80000000, 1'b0, 12);
 
-        // Test Case 2: Overflow of negative numbers
-        $display("Running Test Case 13: Overflow of negative numbers...");
+        $display("Running Test Case 13...");
         A = 32'h80000000;
         B = 32'hFFFFFFFF;
         Cin = 0;
         #10;
-        validate_test(32'h7FFFFFFF, 1'b1);
+        validate_test(32'h7FFFFFFF, 1'b1, 13);
 
+        // Report total number of successes and failures
+        $display("Total Successes: %0d", success_count);
+        $display("Total Failures: %0d", failure_count);
 
         // End simulation
         $stop;
