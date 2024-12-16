@@ -1,39 +1,35 @@
 module booth_multiplier (
-    input signed [31:0] multiplicand,   // 32-bit signed multiplicand
-    input signed [31:0] multiplier,     // 32-bit signed multiplier
-    output reg signed [63:0] product,   // 64-bit signed product
-    input clk,                          // Clock signal
-    input reset                         // Reset signal
+    input signed [31:0] multiplicand,   
+    input signed [31:0] multiplier,     
+    output reg signed [63:0] product,   
+    input clk,                          
+    input reset                         
 );
-    reg signed [63:0] A;                // 64-bit accumulator (upper bits of product)
-    reg signed [31:0] Q;                // 32-bit multiplier (lower bits of product)
-    reg Q_1;                            // Q-1: Extra bit for Booth's algorithm
-    reg signed [63:0] M;                // 64-bit multiplicand (sign-extended)
-    reg [5:0] count;                    // 6-bit counter for 32 iterations
+    reg signed [63:0] A;                
+    reg signed [31:0] Q;                
+    reg Q_1;                            
+    reg signed [63:0] M;                
+    reg [5:0] count;                    
 
     always @(posedge clk or posedge reset) begin
         if (reset) begin
-            // Initialize all values on reset
-            A <= 64'd0;                 // Clear accumulator
-            Q <= multiplier;            // Load multiplier into Q
-            Q_1 <= 1'b0;                // Initialize Q-1 to 0
-            M <= {{32{multiplicand[31]}}, multiplicand}; // Sign-extend multiplicand to 64 bits
-            count <= 6'd32;             // Set counter for 32 iterations
+            A <= 64'd0;                 
+            Q <= multiplier;            
+            Q_1 <= 1'b0;                
+            M <= {{32{multiplicand[31]}}, multiplicand}; 
+            count <= 6'd32;             
         end else if (count > 0) begin
-            // Perform Booth's Algorithm
             case ({Q[0], Q_1})
-                2'b01: A <= A + M;      // If 01 → Add multiplicand
-                2'b10: A <= A - M;      // If 10 → Subtract multiplicand
-                default: A <= A;        // No operation
+                2'b01: A <= A + M;      
+                2'b10: A <= A - M;      
+                default: A <= A;        
             endcase
             
-            // Perform arithmetic right shift (A, Q, Q-1)
             {A, Q, Q_1} <= {A[63], A, Q, Q_1} >> 1;
             
-            count <= count - 1;         // Decrement counter
+            count <= count - 1;         
         end else begin
-            // Final product is stored in A and Q
-            product <= {A, Q};          // Combine A (upper) and Q (lower)
+            product <= {A, Q};         
         end
     end
 endmodule
