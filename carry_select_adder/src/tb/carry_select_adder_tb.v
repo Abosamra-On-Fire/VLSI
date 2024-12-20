@@ -25,46 +25,41 @@ module carry_select_adder_tb;
                 $display("Test Passed: Sum = %h, Cout = %b", Sum, Cout);
             end else begin
                 $display("Test Failed: Expected Sum = %h, Cout = %b, but got Sum = %h, Cout = %b", 
-                         expected_sum, expected_cout, Sum, Cout);
+                            expected_sum, expected_cout, Sum, Cout);
             end
         end
     endtask
 
-    // Test Case 1
     initial begin
-        $display("Running Test Case 1...");
-        A = 32'h00000001;
+        $display("Running Test Case 1... overflow of positive numbers: 2^31 - 1 plus 1");
+        A = 32'h7FFFFFFF;
         B = 32'h00000001;
         Cin = 0;
         #10;  // Run the simulation for 10ns
-        validate_test(32'h00000002, 1'b0);
+        validate_test(32'h80000000, 1'b0);
 
-        // Test Case 2
-        $display("Running Test Case 2...");
-        A = 32'hFFFFFFFF;
-        B = 32'h00000001;
+        $display("Running Test Case 2... overflow of negative numbers: -2^31 plus -1");
+        A = 32'h80000000;
+        B = 32'hFFFFFFFF;
         Cin = 0;
         #10;
-        validate_test(32'h00000000, 1'b1);
+        validate_test(32'h7FFFFFFF, 1'b1);
 
-        // Test Case 3
-        $display("Running Test Case 3...");
-        A = 32'h12345678;
-        B = 32'h87654321;
-        Cin = 1;
+        $display("Running Test Case 3... one positive and one negative: 5 plus -3");
+        A = 32'h00000005;
+        B = 32'hFFFFFFFD;
+        Cin = 0;
         #10;
-        validate_test(32'h9999999a, 1'b0);
+        validate_test(32'h00000002, 1'b0);
 
-        // Test Case 4: Test with different carry-out behavior
-        $display("Running Test Case 4...");
+        $display("Running Test Case 4... two positives");
         A = 32'h11111111;
         B = 32'h22222222;
         Cin = 1;
         #10;
         validate_test(32'h33333334, 1'b0);
 
-        // Test Case 5: Test for maximum values
-        $display("Running Test Case 5...");
+        $display("Running Test Case 5... two negatives");
         A = 32'hFFFFFFFF;
         B = 32'hFFFFFFFF;
         Cin = 0;
@@ -78,7 +73,7 @@ module carry_select_adder_tb;
         Cin = 0;
         #10;
         validate_test(32'hFFFFFFFF, 1'b0);
-          $display("Running Test Case 7...");
+        $display("Running Test Case 7...");
         A = 32'h00000000;
         B = 32'h00000000;
         Cin = 0;
@@ -117,20 +112,6 @@ module carry_select_adder_tb;
         #10;
         validate_test(32'h00000000, 1'b1);
         
-         $display("Running Test Case 12: Overflow of positive numbers...");
-        A = 32'h7FFFFFFF;
-        B = 32'h00000001;
-        Cin = 0;
-        #10;
-        validate_test(32'h80000000, 1'b0);
-
-        // Test Case 2: Overflow of negative numbers
-        $display("Running Test Case 13: Overflow of negative numbers...");
-        A = 32'h80000000;
-        B = 32'hFFFFFFFF;
-        Cin = 0;
-        #10;
-        validate_test(32'h7FFFFFFF, 1'b1);
 
 
         // End simulation
