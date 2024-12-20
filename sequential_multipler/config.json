@@ -1,0 +1,29 @@
+{
+    "meta": {
+        "version": 2,
+        "flow": [
+        "Yosys.Synthesis",
+        "OpenROAD.Floorplan",
+        "OpenROAD.GlobalPlacementSkipIO",
+        "OpenROAD.IOPlacement",
+        "OpenROAD.GlobalPlacement",
+        "OpenROAD.RepairDesignPostGPL",
+        "OpenROAD.DetailedPlacement",
+        "OpenROAD.CTS",
+        "OpenROAD.GlobalRouting",
+        "OpenROAD.DetailedRouting",
+        "OpenROAD.RCX",
+        "OpenROAD.STAPrePNR",
+        "OpenROAD.STAMidPNR",
+        "OpenROAD.STAPostPNR"
+        ]
+    },
+    "DESIGN_NAME": "sequential_multiplier",
+    "VERILOG_FILES": [],
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10.0,
+    "SYNTH_STRATEGY": "AREA 0",
+    "RUN_SPEF_EXTRACTION": true,
+    "FP_IO_MIN_DISTANCE": 2.3,
+    "FP_CORE_UTIL": 60
+}
