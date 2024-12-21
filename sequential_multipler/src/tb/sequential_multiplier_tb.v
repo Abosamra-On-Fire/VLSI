@@ -7,6 +7,18 @@ module sequential_multiplier_tb;
     wire signed [63:0] product;
     wire done;
 
+    // this was a failure
+
+    // signed_shift_add_multiplier uut (
+    //     .clk(clk),
+    //     .rst(rst),
+    //     .start(start),
+    //     .multiplicand(multiplicand),
+    //     .multiplier(multiplier),
+    //     .product(product),
+    //     .done(done)
+    // );
+
     sequential_multiplier uut (
         .clk(clk),
         .rst(rst),
@@ -77,14 +89,40 @@ module sequential_multiplier_tb;
         // Multiplying by one
         test_case(32'd1, 32'd123, 64'd123);
 
+
+        test_case(32'd23, 32'd3, 64'd69);
+
+        test_case(32'd2323, 32'd45, 64'd104535);
+
+        test_case(32'd100, 32'd100, 64'd10000);
+
+        test_case(32'd5678, 32'd1234, 64'd7006652);
+
+        test_case(32'd23, -32'd3, -64'd69);
+
+        test_case(-32'd2323, -32'd45, 64'd104535);
+
+        test_case(32'd100, -32'd100, -64'd10000);
+
+        test_case(-32'd5678, 32'd1234, -64'd7006652);
+
         // Large Positive * Large Positive
-        test_case(32'd100000, 32'd50000, 64'd5000000000);
+        test_case(32'hC350, 32'hC350, 64'h9502F900);
+
+        // Large Positive * Large Positive
+        test_case(32'd50000, 32'd50000, 64'd2500000000);
+
+        // Large Negative * Large Negative
+        test_case(-32'd50000, 32'd50000, -64'd2500000000);
+
 
         // Large Positive * Large Negative
         test_case(32'd100000, -32'd50000, -64'd5000000000);
 
         // Maximum Positive * Maximum Positive
-        test_case(32'sd2147483647, 32'sd2147483647, 64'sd4611686014132420609);
+        test_case(32'h7FFFFFFF, 32'h7FFFFFFF, 64'h3FFFFFFF00000001);
+
+        test_case(32'd2147483647, 32'd2147483647, 64'd4611686014132420609);
 
         // Minimum Negative * Minimum Negative
         test_case(-32'sd2147483648, -32'sd2147483648, 64'sd4611686018427387904);
