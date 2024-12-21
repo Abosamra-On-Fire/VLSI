@@ -18,15 +18,14 @@
       "OpenROAD.STAPostPNR"
     ]
   },
-  "DESIGN_NAME": "BypassAdder",
+  "DESIGN_NAME": "multiplier",
   "VERILOG_FILES": [
-    "dir::src/BypassAdder.v",
-    "dir::src/RippleCarryAdder.v"
+    "dir::src/multiplier.v"
   ],
   "SYNTH_STRATEGY": "AREA 0",
   "CLOCK_PORT": "clock",
   "CLOCK_PERIOD": 20.0,
   "FP_IO_MIN_DISTANCE": 2.3,
   "FP_CORE_UTIL": 60,
-  "PNR_SDC_FILE": "dir::src/BypassAdder.sdc"
+  "PNR_SDC_FILE": "dir::src/multiplier.sdc"
 }

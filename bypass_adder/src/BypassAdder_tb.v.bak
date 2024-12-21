@@ -12,7 +12,7 @@ module tb_BypassAdder;
     integer failure_count = 0;
 
     // Instantiate the Bypass Adder (Carry-Skip Adder)
-    BypassAdder_s_c #(32, 4) uut (
+    BypassAdder_r_c #(32, 4) uut (
         .A(A),
         .B(B),
         .Cin(Cin),

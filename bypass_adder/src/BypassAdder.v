@@ -21,12 +21,12 @@ module BypassAdder #(parameter N = 32, parameter K = 4) (
             wire blockCarry;
 
             // Ripple Carry Adder for each block
-            RippleCarryAdder #(.N(K)) RCA (
-                .A(blockA),
-                .B(blockB),
-                .Cin(carry[i]),  // Carry-in for each block
-                .Sum(Sum[i*K +: K]),
-                .Cout(blockCarry)
+            RippleCarryAdder #(.WIDTH(K)) RCA (
+                .X(blockA),
+                .Y(blockB),
+                .Ci(carry[i]),  // Carry-in for each block
+                .S(Sum[i*K +: K]),
+                .Co(blockCarry)
             );
 
             // Generate and Propagate signals for carry-skip logic
