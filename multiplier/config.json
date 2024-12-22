@@ -27,5 +27,6 @@
   "CLOCK_PERIOD": 20.0,
   "FP_IO_MIN_DISTANCE": 2.3,
   "FP_CORE_UTIL": 60,
+  "RUN_SPEF_EXTRACTION": true,
   "PNR_SDC_FILE": "dir::src/multiplier.sdc"
 }
