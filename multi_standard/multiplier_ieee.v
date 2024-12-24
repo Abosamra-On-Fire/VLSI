@@ -1,105 +1,62 @@
-
-module fp_multiplier (
-    input [31:0] a, // Input operand A
-    input [31:0] b, // Input operand B
-    output reg [31:0] result // Result
+module multiplier_ieee(
+    input wire clk,
+    input wire rst,
+    input wire [31:0] a,
+    input wire [31:0] b,
+    output wire [31:0] product,
+    output wire overflow
 );
-    // Intermediate variables
-    reg sign_a, sign_b, sign_res;
-    reg [7:0] exp_a, exp_b, exp_res;
-    reg [23:0] mant_a, mant_b;
-    reg [47:0] mant_res;
-    reg [7:0] bias = 8'd127;
 
-    always @(*) begin
-        // Extract sign, exponent, and mantissa
-        sign_a = a[31];
-        sign_b = b[31];
-        exp_a = a[30:23];
-        exp_b = b[30:23];
-        mant_a = {1'b1, a[22:0]}; // Add implicit 1
-        mant_b = {1'b1, b[22:0]}; // Add implicit 1
+    reg [31:0] reg_a;
+    reg [31:0] reg_b;
+    reg [31:0] reg_product;
+    reg reg_overflow;
+    
+    wire sign_x, sign_y, sign_product;
+    wire [7:0] exp_x, exp_y, exp_product;
+    wire [22:0] mantissa_x, mantissa_y, mantissa_product;
+    wire [23:0] mantissa_x_ext, mantissa_y_ext;
+    wire [47:0] mantissa_product_ext;
+    wire [7:0] exp_x_bias, exp_y_bias, exp_product_bias;
+    
+    assign sign_x = reg_a[31];
+    assign exp_x = reg_a[30:23];
+    assign mantissa_x = reg_a[22:0];
+    
+    assign sign_y = reg_b[31];
+    assign exp_y = reg_b[30:23];
+    assign mantissa_y = reg_b[22:0];
+    
+    assign mantissa_x_ext = {1'b1, mantissa_x};
+    assign mantissa_y_ext = {1'b1, mantissa_y};
+    
+    assign sign_product = sign_x ^ sign_y;
+    assign mantissa_product_ext = mantissa_x_ext * mantissa_y_ext;
+    
+    assign exp_x_bias = exp_x - 8'd127;
+    assign exp_y_bias = exp_y - 8'd127;
+    assign exp_product_bias = exp_x_bias + exp_y_bias;
+    
+    assign {mantissa_product, exp_product} = mantissa_product_ext[47] ? 
+    {mantissa_product_ext[46:24], exp_product_bias + 8'd128} : 
+    {mantissa_product_ext[45:23], exp_product_bias + 8'd127};
 
-        // Multiply mantissas
-        mant_res = mant_a * mant_b;
+    assign overflow = (exp_x[7] == exp_y[7]) && (exp_x[7] != exp_product[7]);
 
-        // Normalize result if needed
-        if (mant_res[47]) begin
-            mant_res = mant_res >> 1;
-            exp_res = exp_a + exp_b - bias + 1; // Add 1 due to normalization
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            reg_a <= 32'b0;
+            reg_b <= 32'b0;
+            reg_product <= 32'b0;
+            reg_overflow <= 32'b0;
         end else begin
-            exp_res = exp_a + exp_b - bias;
-        end
-
-        // Calculate sign
-        sign_res = sign_a ^ sign_b;
-
-        // Assemble the result
-        if (exp_res >= 255) begin
-            // Handle overflow (set to infinity)
-            result = {sign_res, 8'hFF, 23'b0};
-        end else if (exp_res <= 0) begin
-            // Handle underflow (set to zero)
-            result = {sign_res, 8'b0, 23'b0};
-        end else begin
-            // Normal result
-            result = {sign_res, exp_res[7:0], mant_res[46:24]};
+            reg_a <= a;
+            reg_b <= b;
+            reg_product <= (reg_a == 0 || reg_b == 0) ? 32'b0 : {sign_product, exp_product, mantissa_product};
+            reg_overflow <= (reg_a == 0 || reg_b == 0) ? 1'b0 : overflow;
         end
     end
+
+    assign product = reg_product;
+
 endmodule
-
-
-// module fp_multiplier (
-//     input clk,
-//     input reset,
-//     input [31:0] a, // Input operand A
-//     input [31:0] b, // Input operand B
-//     output reg [31:0] result // Result
-// );
-//     // Intermediate variables
-//     reg sign_a, sign_b, sign_res;
-//     reg [7:0] exp_a, exp_b, exp_res;
-//     reg [23:0] mant_a, mant_b;
-//     reg [47:0] mant_res;
-//     reg [7:0] bias = 8'd127;
-
-//     always @(posedge clk or posedge reset) begin
-//         if (reset) begin
-//             result <= 32'b0;
-//         end else begin
-//             // Extract sign, exponent, and mantissa
-//             sign_a = a[31];
-//             sign_b = b[31];
-//             exp_a = a[30:23];
-//             exp_b = b[30:23];
-//             mant_a = {1'b1, a[22:0]}; // Add implicit 1
-//             mant_b = {1'b1, b[22:0]}; // Add implicit 1
-
-//             // Multiply mantissas
-//             mant_res = mant_a * mant_b;
-
-//             // Normalize result if needed
-//             if (mant_res[47]) begin
-//                 mant_res = mant_res >> 1;
-//                 exp_res = exp_a + exp_b - bias + 1; // Add 1 due to normalization
-//             end else begin
-//                 exp_res = exp_a + exp_b - bias;
-//             end
-
-//             // Calculate sign
-//             sign_res = sign_a ^ sign_b;
-
-//             // Assemble the result
-//             if (exp_res >= 255) begin
-//                 // Handle overflow (set to infinity)
-//                 result = {sign_res, 8'hFF, 23'b0};
-//             end else if (exp_res <= 0) begin
-//                 // Handle underflow (set to zero)
-//                 result = {sign_res, 8'b0, 23'b0};
-//             end else begin
-//                 // Normal result
-//                 result = {sign_res, exp_res[7:0], mant_res[46:24]};
-//             end
-//         end
-//     end
-// endmodule
