@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "version": 2,
+    "flow": [
+      "Yosys.Synthesis",
+      "OpenROAD.STAPrePNR",
+      "OpenROAD.Floorplan",
+      "OpenROAD.GlobalPlacementSkipIO",
+      "OpenROAD.IOPlacement",
+      "OpenROAD.GlobalPlacement",
+      "OpenROAD.RepairDesignPostGPL",
+      "OpenROAD.DetailedPlacement",
+      "OpenROAD.CTS",
+      "OpenROAD.GlobalRouting",
+      "OpenROAD.STAMidPNR",
+      "OpenROAD.DetailedRouting",
+      "OpenROAD.RCX",
+      "OpenROAD.STAPostPNR"
+    ]
+  },
+  "DESIGN_NAME": "BypassAdder",
+  "VERILOG_FILES": [
+    "dir::src/BypassAdder.v",
+    "dir::src/RippleCarryAdder.v"
+  ],
+  "SYNTH_STRATEGY": "AREA 0",
+  "CLOCK_PORT": "clock",
+  "CLOCK_PERIOD": 20.0,
+  "FP_IO_MIN_DISTANCE": 2.3,
+  "FP_CORE_UTIL": 60,
+  "PNR_SDC_FILE": "dir::src/BypassAdder.sdc",
+  "RUN_SPEF_EXTRACTION": true
+
+}
